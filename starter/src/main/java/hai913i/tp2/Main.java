@@ -112,17 +112,17 @@ public final class Main {
                 facts.calls().size());
         OUT.printf(Locale.ROOT, "Seuil CP retenu     : %.4f%n", cp);
 
-        // TODO étape A1 : écarter les arcs intra-classe, agréger les arcs
-        //                 restants par couple de classes distinctes, puis
-        //                 calculer C(A, B) = r(A, B) / |E_inter|.
+        OUT.println();
+        OUT.println("Faits chargés. Les étapes A2 à B3 restent à écrire.");
+
+        CouplingAnalysis.CouplingResult couplingResult = CouplingAnalysis.analyze(facts, OUT);
+
         // TODO étape A2 : construire et exporter le graphe de couplage pondéré.
         // TODO étape B1 : regroupement hiérarchique ascendant, lien moyen,
         //                 égalités départagées comme le sujet l'impose.
         // TODO étape B2 : représenter et exporter le dendrogramme.
         // TODO étape B3 : couper l'arbre sous les trois contraintes, puis
         //                 vérifier la contrainte M/2 et signaler sa violation.
-        OUT.println();
-        OUT.println("Faits chargés. Les étapes A1 à B3 restent à écrire.");
     }
 
     /**

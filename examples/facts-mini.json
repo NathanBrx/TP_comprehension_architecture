@@ -1,0 +1,78 @@
+{
+ "schema": "hai913i-tp2-facts/1",
+ "project": "mini",
+ "description": "Micro exemple documentant le format. 3 classes, 4 arcs. Les valeurs attendues sont dans LISEZMOI.txt.",
+ "counts": {
+  "classes": 3,
+  "methods": 5,
+  "callArcs": 4,
+  "callSitesTotal": 5,
+  "interClassCallArcs": 3,
+  "interClassCallSites": 4
+ },
+ "classes": [
+  {
+   "name": "demo.A",
+   "simpleName": "A",
+   "package": "demo"
+  },
+  {
+   "name": "demo.B",
+   "simpleName": "B",
+   "package": "demo"
+  },
+  {
+   "name": "demo.C",
+   "simpleName": "C",
+   "package": "demo"
+  }
+ ],
+ "methods": [
+  {
+   "id": "demo.A#f()",
+   "owner": "demo.A"
+  },
+  {
+   "id": "demo.A#g()",
+   "owner": "demo.A"
+  },
+  {
+   "id": "demo.B#h()",
+   "owner": "demo.B"
+  },
+  {
+   "id": "demo.B#i()",
+   "owner": "demo.B"
+  },
+  {
+   "id": "demo.C#j()",
+   "owner": "demo.C"
+  }
+ ],
+ "calls": [
+  {
+   "caller": "demo.A#f()",
+   "callee": "demo.B#h()",
+   "sites": 2
+  },
+  {
+   "caller": "demo.A#g()",
+   "callee": "demo.B#h()",
+   "sites": 1
+  },
+  {
+   "caller": "demo.A#f()",
+   "callee": "demo.A#g()",
+   "sites": 1
+  },
+  {
+   "caller": "demo.B#i()",
+   "callee": "demo.C#j()",
+   "sites": 1
+  }
+ ],
+ "extra": {
+  "note": "Aucun heritage dans ce micro exemple.",
+  "inheritance": []
+ }
+}

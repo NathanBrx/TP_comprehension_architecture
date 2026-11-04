@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  HAI913I — TP 2 « Compréhension et architectures » (2026-2027)
+  Exemples de support : formats de sortie et règle de départage.
+
+  Aucune dépendance. Testé sur JDK 17.0.10 et 21.0.5, Maven 3.9.6.
+  Tout est en UTF-8 : les sources, les données, et la sortie console.
+
+      mvn -q clean package
+      java -cp target/classes demo.TinyTreeDemo
+      java -cp target/classes demo.TieBreakDemo
+
+  Ces exemples documentent un format et une convention.
+  Le couplage, le regroupement et la coupe restent à écrire.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.umontpellier.hai913i</groupId>
+    <artifactId>hai913i-tp2-exemples</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <!-- les trois propriétés d'encodage : sources, compilation, rapports -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    </properties>
+    <build>
+        <finalName>hai913i-tp2-exemples</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

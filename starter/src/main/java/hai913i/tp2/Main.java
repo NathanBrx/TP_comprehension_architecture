@@ -3,6 +3,7 @@ package hai913i.tp2;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
@@ -117,7 +118,39 @@ public final class Main {
 
         CouplingAnalysis.CouplingResult couplingResult = CouplingAnalysis.analyze(facts, OUT);
 
-        // TODO étape A2 : construire et exporter le graphe de couplage pondéré.
+        WeightedCouplingGraph graph = new WeightedCouplingGraph(facts.classNames(), couplingResult, OUT);
+        graph.printSummary();
+
+        Path outputDir = Path.of("outputs");
+        try {
+            Files.createDirectories(outputDir);
+        } catch (IOException e) {
+            ERR.println("Création du dossier impossible : " + e.getMessage());
+        }
+
+        Path csvFile = outputDir.resolve("coupling-graph.csv");
+        Path dotFile = outputDir.resolve("coupling-graph.dot");
+
+        try {
+            graph.exportCsv(csvFile);
+            graph.exportDot(dotFile);
+        } catch (IOException e) {
+            ERR.println("Export impossible : " + e.getMessage());
+        }
+
+        try {
+            WeightedCouplingGraph reloadedGraph = WeightedCouplingGraph.loadCsv(csvFile, facts.classNames());
+            OUT.println();
+            OUT.println("Rechargement du CSV : "
+                    + reloadedGraph.getEdges().size() + " arêtes, "
+                    + reloadedGraph.getNodes().size() + " sommets");
+            OUT.println("Les graphes ne sont pas les mêmes : graph == reloadedGraph : " + (graph == reloadedGraph));
+            OUT.println("Sommaire du reloadedGraph :");
+            reloadedGraph.printSummary();
+        } catch (IOException e) {
+            ERR.println("Load csv impossible : " + e.getMessage());
+        }
+
         // TODO étape B1 : regroupement hiérarchique ascendant, lien moyen,
         //                 égalités départagées comme le sujet l'impose.
         // TODO étape B2 : représenter et exporter le dendrogramme.

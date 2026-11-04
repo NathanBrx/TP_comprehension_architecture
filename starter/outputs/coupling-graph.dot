@@ -1,0 +1,40 @@
+graph CouplingGraph {
+    node [shape=ellipse, style=filled, fillcolor=lightblue];
+    edge [fontsize=10];
+
+    "library.app.LibraryApp" [label="LibraryApp"];
+    "library.model.Book" [label="Book"];
+    "library.model.Category" [label="Category"];
+    "library.model.Dvd" [label="Dvd"];
+    "library.model.Item" [label="Item"];
+    "library.model.Loanable" [label="Loanable"];
+    "library.model.Member" [label="Member"];
+    "library.service.Catalog" [label="Catalog"];
+    "library.service.ConsoleNotifier" [label="ConsoleNotifier"];
+    "library.service.LoanException" [label="LoanException"];
+    "library.service.LoanService" [label="LoanService"];
+    "library.service.LoanService.Loan" [label="Loan"];
+    "library.service.Notifier" [label="Notifier"];
+    "library.util.Statistics" [label="Statistics"];
+    "library.util.TextUtils" [label="TextUtils"];
+
+    "library.app.LibraryApp" -- "library.service.Catalog" [label="0.0811", weight=0.0811];
+    "library.app.LibraryApp" -- "library.model.Book" [label="0.0270", weight=0.0270];
+    "library.app.LibraryApp" -- "library.model.Item" [label="0.0811", weight=0.0811];
+    "library.app.LibraryApp" -- "library.util.Statistics" [label="0.0270", weight=0.0270];
+    "library.app.LibraryApp" -- "library.service.LoanService" [label="0.0811", weight=0.0811];
+    "library.app.LibraryApp" -- "library.service.LoanService.Loan" [label="0.0541", weight=0.0541];
+    "library.model.Book" -- "library.model.Item" [label="0.0270", weight=0.0270];
+    "library.model.Item" -- "library.model.Member" [label="0.0541", weight=0.0541];
+    "library.model.Category" -- "library.model.Item" [label="0.0270", weight=0.0270];
+    "library.model.Item" -- "library.service.Catalog" [label="0.0541", weight=0.0541];
+    "library.model.Member" -- "library.service.ConsoleNotifier" [label="0.0270", weight=0.0270];
+    "library.model.Member" -- "library.service.LoanService" [label="0.0541", weight=0.0541];
+    "library.service.Catalog" -- "library.service.LoanService" [label="0.0270", weight=0.0270];
+    "library.model.Loanable" -- "library.service.LoanService" [label="0.0270", weight=0.0270];
+    "library.service.LoanService" -- "library.service.Notifier" [label="0.0541", weight=0.0541];
+    "library.service.LoanService" -- "library.util.TextUtils" [label="0.0270", weight=0.0270];
+    "library.model.Item" -- "library.service.LoanService" [label="0.1081", weight=0.1081];
+    "library.service.LoanService" -- "library.service.LoanService.Loan" [label="0.1081", weight=0.1081];
+    "library.util.Statistics" -- "library.util.TextUtils" [label="0.0541", weight=0.0541];
+}

@@ -112,10 +112,6 @@ public final class Main {
                 facts.methodOwners().size());
         OUT.printf(Locale.ROOT, "Arcs du graphe      : %d%n",
                 facts.calls().size());
-        OUT.printf(Locale.ROOT, "Seuil CP retenu     : %.4f%n", cp);
-
-        OUT.println();
-        OUT.println("Faits chargés. Les étapes A2 à B3 restent à écrire.");
 
         /* Etape A1 */
         CouplingAnalysis.CouplingResult couplingResult = CouplingAnalysis.analyze(facts, OUT);
@@ -182,9 +178,8 @@ public final class Main {
         OUT.println("  - Texte  : " + textDendroFile.toAbsolutePath());
         OUT.println("  - DOT    : " + dotDendroFile.toAbsolutePath());
 
-        // TODO étape B2 : représenter et exporter le dendrogramme.
-        // TODO étape B3 : couper l'arbre sous les trois contraintes, puis
-        //                 vérifier la contrainte M/2 et signaler sa violation.
+        /* Etape B3 */
+        ModuleIdentifier.identifyModules(root, couplingResult, cp, facts.classes().size(), OUT);
     }
 
     /**

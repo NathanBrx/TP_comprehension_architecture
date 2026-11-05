@@ -158,6 +158,30 @@ public final class Main {
 
         List<HierarchicalClustering.StepStepFusion> fusions = HierarchicalClustering.runClustering(facts, couplingResult, OUT);
 
+        /* Etape B2 */
+
+        DendrogramNode root = Dendrogram.buildTree(facts, fusions);
+
+        // Affichage console de l'arbre
+        OUT.println("\n--- ARBRE DU DENDROGRAMME ---");
+        Dendrogram.printIndentedTree(root, "", true, OUT);
+
+        Dendrogram.etapeB2(root, OUT);
+
+        Path textDendroFile = outputDir.resolve("dendrogram.txt");
+        Path dotDendroFile = outputDir.resolve("dendrogram.dot");
+
+        try {
+            Dendrogram.exportText(root, textDendroFile);
+            Dendrogram.exportDot(root, dotDendroFile);
+        } catch (IOException e) {
+            ERR.println("Export impossible : " + e.getMessage());
+        }
+
+        OUT.println("\nDendrogramme exporté en :");
+        OUT.println("  - Texte  : " + textDendroFile.toAbsolutePath());
+        OUT.println("  - DOT    : " + dotDendroFile.toAbsolutePath());
+
         // TODO étape B2 : représenter et exporter le dendrogramme.
         // TODO étape B3 : couper l'arbre sous les trois contraintes, puis
         //                 vérifier la contrainte M/2 et signaler sa violation.

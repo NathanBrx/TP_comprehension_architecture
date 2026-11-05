@@ -16,6 +16,10 @@ public final class HierarchicalClustering {
             this.classNames = Collections.unmodifiableSet(new TreeSet<>(classNames));
         }
 
+        public int getId() {
+            return id;
+        }
+
         public String getSimpleNames() {
             List<String> simple = new ArrayList<>();
             for (String fqcn : classNames) {

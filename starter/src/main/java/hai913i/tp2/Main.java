@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -116,8 +117,10 @@ public final class Main {
         OUT.println();
         OUT.println("Faits chargés. Les étapes A2 à B3 restent à écrire.");
 
+        /* Etape A1 */
         CouplingAnalysis.CouplingResult couplingResult = CouplingAnalysis.analyze(facts, OUT);
 
+        /* Etape A2 */
         WeightedCouplingGraph graph = new WeightedCouplingGraph(facts.classNames(), couplingResult, OUT);
         graph.printSummary();
 
@@ -151,8 +154,10 @@ public final class Main {
             ERR.println("Load csv impossible : " + e.getMessage());
         }
 
-        // TODO étape B1 : regroupement hiérarchique ascendant, lien moyen,
-        //                 égalités départagées comme le sujet l'impose.
+        /* Etape B1 */
+
+        List<HierarchicalClustering.StepStepFusion> fusions = HierarchicalClustering.runClustering(facts, couplingResult, OUT);
+
         // TODO étape B2 : représenter et exporter le dendrogramme.
         // TODO étape B3 : couper l'arbre sous les trois contraintes, puis
         //                 vérifier la contrainte M/2 et signaler sa violation.

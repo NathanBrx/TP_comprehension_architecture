@@ -1,5 +1,7 @@
 \documentclass{Templates/customArticle}
 
+\usepackage{amsmath}
+
 \begin{document}
 
 \begin{titlepage}
@@ -22,5 +24,173 @@
 \thispagestyle{empty}
 \clearpage
 \pagenumbering{arabic}
+
+
+\section{Objectif et périmètre}
+
+L'outil développé au cours de ce tp charge les faits (classes, méthodes, appels) extraits grâce au projet du tp précédent, calcule le couplage entre les classes, construit un arbre de clustering hiérarchique ascendant, et déduit des modules architecturaux en coupant cet arbre selon un seuil paramétrable.
+
+Il ne parse pas de code source Java directement (c'est le rôle du tp1) et ne prend pas en compte l'héritage, le typage ou l'instanciation dans le calcul du couplage.
+
+\section{Conception générale}
+
+Ce projet est basé sur un pipeline représentant le projet où chaque étape est une classe, exécutées les unes à la suite des autres. Tout d'abord, la classe \texttt{FactsCsvExporter} ajoutée au tp1 exporte les données nécessaires sous forme de fichiers csv, directement dans le dossier \texttt{resources\_TP1} de ce projet. 
+
+\begin{itemize}
+	\itemsep0.2em
+    \item \textbf{Étape A1 :} La classe \texttt{CouplingAnalysis} est chargée du filtrage des arcs intra-classes et du calcul de la métrique de couplage $C(A, B)$ pour chaque paire de classes distinctes.
+    
+    \item \textbf{Étape A2 :} La classe \texttt{WeightedCouplingGraph} transforme les résultats du couplage en un graphe pondéré. Elle gère également l'export en csv et dot.
+    
+    \item \textbf{Étape B1 :} La classe \texttt{HierarchicalClustering} implémente le regroupement hiérarchique ascendant. Elle calcule dynamiquement les similarités entre groupes (critère du lien moyen) et applique strictement la règle de départage déterministe lors des égalités.
+    
+    \item \textbf{Étape B2 :} La classe \texttt{Dendrogram} modélise l'historique des fusions sous la forme d'un arbre binaire en mémoire, composé d'instances de \texttt{DendrogramNode} (feuilles et nœuds internes). Elle exporte ensuite cet arbre sous forme texte (indenté) et dot.
+    
+    \item \textbf{Étape B3 :} Enfin, la classe \texttt{ModuleIdentifier} parcourt cet arbre récursivement pour identifier les modules candidats en fonction du seuil de couplage \texttt{CP} paramétré par l'utilisateur, et vérifie la contrainte $M/2$.
+\end{itemize}
+
+\section{Conventions appliquées}\label{Conventions}
+
+Seuls les appels de méthodes sont comptés comme relation entre deux classes.
+
+Couplage : $C(A, B) = \dfrac{r(A, B)}{|E_{inter}|}$, où $E_{inter}$ exclut les arcs internes.
+
+Le critère de liaison est le lien moyen, c'est à dire la somme de tous les couplages divisée par $|G_1| \times |G_2|$.
+
+Pour le départage : ID croissant (0 à M-1 ordre alphabétique), puis choix du couple au plus petit ID lexicographique.
+
+Coupe : le couplage interne moyen est strictement supérieur au seuil CP : $\overline{C}(G) > CP$.
+Il est calculé par la formule $\overline{C}(G) = \dfrac{1}{\binom{|G|}{2}}\sum\limits_{\{A,B\}\subseteq G, A\neq B} C(A,B)$
+
+\section{Réponses}
+
+\subsection{Partie A}
+
+\subsubsection{A1}
+
+La classe \texttt{CouplingAnalysis} parcoure les appels pour compter $|E_{inter}|$ en excluant les appels internes. Les arcs restants sont agrégés dans un couple de classes non orienté (\texttt{ClassPair}), garantissant la symétrie.
+
+On détermine ainsi le nombre d'arcs $r(A,B)$ et on calcule le couplage via la formule $C(A, B) = \dfrac{r(A, B)}{|E_{inter}|}$. (Voir conventions \ref{Conventions})
+
+\subsubsection{A2}
+
+À la place d'une matrice dense remplie de zéros, le graphe est stocké en mémoire sous forme de liste de nœuds et d'arêtes. Lors de la construction, le degré de chaque sommet est vérifié pour identifier facilement les classes isolées. La classe gère ensuite les exports : un fichier csv et un fichier dot.
+\newpage
+\subsection{Partie B}
+
+\subsubsection{B1}
+
+L'implémentation repose sur une liste des groupes actifs, mise à jour à chaque itération. À chaque étape, une double boucle évalue la similarité entre toutes les paires de groupes actifs. Cette similarité est calculée selon le critère du lien moyen, en divisant la somme totale des couplages inter-groupes par le produit des tailles des deux groupes.
+
+Les deux groupes les plus similaires sont fusionnés, retirés des groupes actifs, la fusion est enregistrée et le groupe formé par celle-ci est ajouté à la liste des groupes actifs.
+
+\subsubsection{B2}
+
+Le dendrogramme généré est un arbre binaire classique où les feuilles représentent les 15 classes originelles et les nœuds représentent les fusions, portant chacun la valeur de similarité à laquelle le regroupement a eu lieu. La racine de cet arbre rassemble toutes les classes. Voir partie \ref{Dendrogramme}
+
+\subsubsection{B3}
+
+La coupe s'effectue via un parcours récursif de l'arbre en partant de la racine. Pour chaque nœud visité, le couplage interne moyen $\overline{C}(G)$ est calculé dynamiquement sur toutes ses classes membres (Voir conventions \ref{Conventions}). Si cette valeur dépasse strictement le paramètre utilisateur $CP$, le sous-arbre entier est retenu comme module. Dans le cas contraire, le parcours descend vers les enfants.
+
+\section{Architecture et diagrammes}
+
+\insertimage{../../starter/outputs/coupling-graph.png}{Graphe de couplage pondéré}
+
+\insertimage{../../starter/outputs/dendrogram.png}{Dendrogramme}\label{Dendrogramme}
+\newpage
+\section{Validation}
+
+\subsection{Étape A0}
+
+\insertimage{local_assets/a0-test.png}{Le mvn clean test passe}
+
+\insertimage{local_assets/a0-tp1.png}{Le programme annonce bien 15 classes, 59 méthodes et 44 arcs sur le jeu de données du projet de validation (données extraites par le tp1)}
+
+\insertimage{local_assets/a0-mini.png}{Il annonce bien 3 classes, 5 méthodes, 4 arcs sur le micro jeu de données}
+\newpage
+\subsection{Étape A1}
+
+\insertimage{local_assets/a1.png}{On peut voir sur les résultats :  7 arcs écartés (internes), |Einter| = 37, 19 couples non nuls dont la somme vaut 1,000, 105 couples possibles.\\Le couple le plus couplé est Item – LoanService avec r = 4, et C = 0,1081.\\Dvd et LoanException n’apparaissent dans aucun couple.}
+
+\subsection{Étape A2}
+
+\insertimage{local_assets/a2.png}{On peut voir sur les résultats : 15 sommets et 19 arêtes. Les cinq arêtes les plus lourdes sont Item–LoanService, LoanService–Loan, LibraryApp–Item, LibraryApp–Catalog et LibraryApp–LoanService. Deux nœuds
+sont isolés : Dvd et LoanException\\Le graphe est bien exporté dans deux formats, puis rechargé et l'affichage du graphe rechargé est le même.}
+\newpage
+\subsection{Étape B1}
+
+\insertimage{local_assets/b1.png}{Le programme effectue bien 14 fusions, les trois premières fusions sont bien :\\\texttt{\{Item, LoanService\}} : 0,1081\\\texttt{\{LibraryApp, Catalog\}} : 0,0811\\\texttt{\{Item, LoanService, LibraryApp, Catalog\}} : 0,0608}
+
+\subsection{Étape B2}
+
+\insertimage{local_assets/b2.png}{L'arbre a bien 15 feuilles, 14 nœuds. La racine contient les 15 classes et la similarité de la racine et de l'étape précédente (étape 27) sont bien à 0}
+
+\subsection{Étape B3}
+
+\insertimage{local_assets/b3-1.png}{CP = 0,015, la contrainte est respectée, 4 modules mais on a le module 2 de 11 classes}
+
+\insertimage{local_assets/b3-2.png}{CP = 0,025, la contrainte est respectée, 7 modules}
+
+\insertimage{local_assets/b3-3.png}{CP = 0,045, la contrainte est violée (comme on peut le voir), 10 modules}
+\newpage
+\section{Interprétation}
+
+\subsection{Question 1}
+
+Le module 1 \texttt{\{Statistics, TextUtils\}} correspond au paquetage \texttt{library.util}. Les classes utilitaires travaillent ensemble et n'ont pas de dépendance vers le reste de l'application.
+
+Mais le reste diverge fortement : Le gros module 5 regroupe \texttt{\{LibraryApp, Book, Item, Catalog, LoanService, Loan, Notifier\}}. Il mélange la couche app (interface), la couche model (données) et la couche service (logique métier).
+
+Cette divergence est due au fait que la mesure de couplage groupe les classes selon le flux d'exécution : \texttt{LibraryApp} appelle \texttt{Catalog} et \texttt{LoanService} qui manipulent \texttt{Item} et \texttt{Book}, contrairement aux paquetages Java, qui séparent les responsabilités techniques (Vue, Modèle, Contrôleur). Ce sont deux préoccupations différentes, l'analyse statique des appels regroupe le code par "cas d'usage" (use-case) plutôt que par couche technique.
+
+\subsection{Question 2}
+
+Définition du § 5.1 : Deux classes sont en relation lorsqu'une méthode de l'une appelle une méthode de l'autre. L'instanciation (new), l'héritage, le typage et la levée d'exceptions ne comptent pas.
+
+Ici, \texttt{LoanException} est instanciée et lancée, mais aucune de ses méthodes n'est appelée.
+\texttt{Dvd} est instancié et manipulé seulement à travers l'interface \texttt{Item}, mais aucune méthode spécifique à \texttt{Dvd} n'est appelée directement par une autre classe. La relation de couplage stricte du TP les rend donc invisibles.
+
+\subsection{Question 3}
+
+Le module 4 \texttt{\{Member, ConsoleNotifier\}} peut surprendre. Conceptuellement, un membre (model) n'a rien à voir avec le fait de notifier via la console (service).
+
+L'explication algorithmique : En regardant les sorties, on voit que le couplage \texttt{Member <---> ConsoleNotifier} vaut $0.0270$. \texttt{ConsoleNotifier} possède une méthode \texttt{send(Member m, ...)} qui appelle \texttt{m.getName()}. Comme ces deux classes n'ont que peu d'autres liens forts pour les retenir ailleurs au début de l'algorithme, elles ont été regroupées à l'étape 6 avec une similarité de $0.0270$.
+
+\subsection{Question 4}
+
+Résultats :
+\begin{itemize}
+	\item $CP = 0.015 \rightarrow 4$ modules. L'exigence est trop faible, ce qui produit un module géant de 11 classes.
+	\item $CP = 0.045 \rightarrow 10$ modules. L'exigence est trop forte, l'application est fragmentée en singletons isolés et violant la contrainte $M/2$ (10 > 7).
+\end{itemize}
+
+Troisième résultat et valeur retenue : $CP = 0.025$.
+C'est la valeur optimale car elle satisfait la contrainte ($7 \le M/2$), avec un équilibre entre un "noyau" (les classes liées aux prêts, qui forment un gros groupe) et l'isolement correct des classes utilitaires et de la gestion des membres.
+
+\subsection{Question 5}
+
+Limites de la relation comptée : En ignorant l'héritage et le polymorphisme, des composants fortement liés (une interface et son implémentation) sont ignorés. Une classe appelée uniquement via son interface parente paraîtra isolée (ex: \texttt{Dvd}).
+
+Limites du critère de liaison (lien moyen) : Le lien moyen est influencé par la taille des groupes. Dès qu'un groupe devient gros, le dénominateur ($|G_1| \times |G_2|$) augmente fortement. Cela empêche l'addition de nouvelles classes car la similarité diminue très rapidement vers $0$, même si une classe a un appel très fort vers une classe spécifique de ce groupe.
+
+Limites du seuil CP : CP est une valeur globale et statique, donnant le même niveau d'exigence à tout l'arbre, ce qui ne peut pas fonctionner : un petit groupe "utilitaire" très cohésif nécessiterait un CP élevé, tandis que la couche métier centrale tolérerait un CP plus bas. Il faudrait des seuils différents pour des parties différentes de l'arbre.
+\newpage
+\section{Difficultés}
+
+J'ai rencontré quelques difficultés, notamment au début pour l'étape A0, pour que le programme me donne 59 méthodes et 44 arcs. Il renvoyait trop de méthodes et 1 arc de trop, mais pour le cas des méthodes la cause était une erreur dans l'exportateur du tp1. Pour le cas des arcs, un arc existait pour la classe LoanException. Cependant il ne soit pas être compté car il n'y a pas d'appel de méthode, seulement une instanciation.
+
+Une autre difficulté qui est en réalité plutôt une subtilité, lors du clustering hiérarchique, on calcule la similarité maximale entre deux groupes. Les similarités sont des nombres flottants (calculés via des divisions), il peut y avoir des legères erreurs d'arrondi. Il existe donc une contrainte $\epsilon = 10^{-9}$. Si la différence de similarités est inférieure, les similarités sont considérées comme égales.
+
+\section{Utilisation de l'IA}
+
+Gemini 3.1 Pro a été utilisé ponctuellement comme assistant de développement, principalement pour du débuggage et pour l'explication des formules mathématiques impliquées dans ce tp (comprendre à quoi chaque membre d'une formule correspondait). L'utilisation de records comme structure de stockage a aussi été suggérée par l'IA. 
+
+\section{Conclusion}
+
+Quelques améliorations possibles seraient dans un premier temps la prise en compte de l'héritage et du typage des attributs pour enrichir le graphe d'appel (comme proposé dans le Bonus C2), et dans un second temps déterminer le seuil CP dynamiquement en fonction de la profondeur de l'arbre.
+
+\section{Source}
+
+\noindent{Dépot : \url{https://github.com/NathanBrx/TP_comprehension_architecture}}
 
 \end{document}

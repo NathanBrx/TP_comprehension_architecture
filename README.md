@@ -22,7 +22,7 @@ Suite du TP1 : https://github.com/NathanBrx/TP_analyse_statique
 
 ## Compilation
 
-Pour construire le projet depuis un état propre, exécutez la commande suivante à la racine du dépôt :
+Pour construire le projet depuis un état propre, exécutez la commande suivante **dans le dossier starter** :
 
 mvn clean package
 

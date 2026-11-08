@@ -110,7 +110,7 @@ public final class Dendrogram {
         out.println("Nombre de feuilles (classes)       : " + nbLeaves);
         out.println("Nombre de nœuds internes           : " + nbInternal);
         out.println("Nombre de membres dans la racine   : " + rootMembers.size());
-        out.printf(Locale.ROOT, "Similarité de la racine (étape 14) : %.4f%n", root.getSimilarity());
+        out.printf(Locale.ROOT, "Similarité de la dernière étape    : %.4f%n", root.getSimilarity());
         out.printf(Locale.ROOT, "Similarité de l'avant-dernière     : %.4f%n", root.getRight().getSimilarity());
     }
 }
